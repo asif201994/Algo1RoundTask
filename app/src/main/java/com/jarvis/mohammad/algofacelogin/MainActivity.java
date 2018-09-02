@@ -3,6 +3,7 @@ package com.jarvis.mohammad.algofacelogin;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -13,6 +14,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.instantapps.ActivityCompat;
@@ -51,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.INTERNET;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     CallbackManager callbackManager;
@@ -69,14 +74,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById(R.id.login_button);
+
+        //Toast fot whether the device is connected to internet or not
+        if(!haveNetworkConnection()){
+            Toast.makeText(this,"Please turn on internet connection",Toast.LENGTH_LONG).show();
+        }
+
+
+        // Read permission
         loginButton.setReadPermissions(Arrays.asList(EMAIL, PROFILE, BIRTHDAY, FRIENDS));
 
-        // If you are using in a fragment, call loginButton.setFragment(this);
 
         // Callback registration
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+
+
+
 
                 LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
                 boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -103,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                              return;
                         }
 
-
-                        Location location = service.getLastKnownLocation(service.NETWORK_PROVIDER);
+                        // passing latitude and longitude provided by the gps to intent.
+                        Location location = service.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         Intent intent = new Intent(MainActivity.this, UserDetails.class);
                         intent.putExtra("latitude",location.getLatitude());
                         intent.putExtra("longitude",location.getLongitude());
@@ -130,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onResume() {
         super.onResume();
-        //Facebook login
+
+
 
     }
 
@@ -171,6 +187,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onProviderDisabled(String s) {
 
     }
+
+    private boolean haveNetworkConnection() {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
+        }
+        return haveConnectedWifi || haveConnectedMobile;
+    }
+
 
 }
 

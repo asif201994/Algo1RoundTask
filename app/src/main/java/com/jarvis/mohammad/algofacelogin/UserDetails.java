@@ -58,15 +58,17 @@ public class UserDetails extends AppCompatActivity {
         txtid = findViewById(R.id.Id);
         userAddress = findViewById(R.id.address);
 
-
+        // getting local location of the device by geoCoder.
         geocoder = new Geocoder(this,Locale.getDefault());
          Bundle bundle= getIntent().getExtras();
          latitude = (double) bundle.get("latitude");
          longitude = (double) bundle.get("longitude");
 
         try {
-            addresses = geocoder.getFromLocation(latitude, longitude, 1);
 
+            //passing latitude and longitude to getFromLocation to get the address of user
+
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
             String address = addresses.get(0).getAddressLine(0);
             String area = addresses.get(0).getLocality();
             String city = addresses.get(0).getAdminArea();
@@ -81,7 +83,7 @@ public class UserDetails extends AppCompatActivity {
         }
 
 
-
+        // getting facebook data by graphRequest provided by facebook in json format.
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
@@ -96,6 +98,8 @@ public class UserDetails extends AppCompatActivity {
         request.setParameters(parameters);
         request.executeAsync();
         Button logout = findViewById(R.id.button2);
+
+        //getting back to the login page
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,6 +114,8 @@ public class UserDetails extends AppCompatActivity {
     private void getData(JSONObject object) {
         try {
             URL profile_picture = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?width=250&height=250");
+
+           //using picasso to load the profile picture to the image view.
             Picasso.get().load(profile_picture.toString()).into(avatar);
             Email = object.get("email").toString();
             Name = object.get("first_name").toString() + " " + object.get("middle_name").toString() + " " + object.get("last_name").toString();
