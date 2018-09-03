@@ -75,10 +75,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById(R.id.login_button);
 
-        //Toast fot whether the device is connected to internet or not
-        if(!haveNetworkConnection()){
-            Toast.makeText(this,"Please turn on internet connection",Toast.LENGTH_LONG).show();
-        }
+
 
 
         // Read permission
@@ -98,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 // Check if enabled and if not send user to the GPS settings
                 if (!enabled) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setMessage("Press ok to turn on location");
+                    builder.setMessage("Your location is Turned off.Press ok to turn on location");
 
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -188,22 +185,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     }
 
-    private boolean haveNetworkConnection() {
-        boolean haveConnectedWifi = false;
-        boolean haveConnectedMobile = false;
 
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
-        for (NetworkInfo ni : netInfo) {
-            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
-                if (ni.isConnected())
-                    haveConnectedWifi = true;
-            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
-                if (ni.isConnected())
-                    haveConnectedMobile = true;
-        }
-        return haveConnectedWifi || haveConnectedMobile;
-    }
 
 
 }
